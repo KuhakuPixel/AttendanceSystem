@@ -9,12 +9,19 @@ CREATE TABLE Users (
 	is_admin BOOLEAN DEFAULT FALSE NOT NULL
 );
 
-CREATE TABLE UserAttendance (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL, 
-    time DATETIME NOT NULL,
-    photo_proof BLOB NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+CREATE TABLE UserAttendances (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	user_id INT NOT NULL, 
+	time DATETIME NOT NULL,
+	photo_proof BLOB NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE UserSessions (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	user_id INT NOT NULL, 
+	token VARCHAR(256) NOT NULL UNIQUE,
+	FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
 INSERT INTO Users(email, username, age, password, is_admin) VALUES("admin@gmail.com", "admin", 30, "adminpassword", TRUE);

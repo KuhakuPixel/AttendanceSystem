@@ -1,12 +1,15 @@
 
+const TOKEN_LENGTH = 128;
 const express = require('express')
 const app = express()
 const HttpStatus = require('http-status-codes');
+const crypto = require("crypto");
+const id = crypto.randomBytes(20).toString('hex');
 const port = 3005
 
 const mysql = require('mysql2/promise');
 var bodyParser = require('body-parser');
-const { User, UserAttendance } = require('./model');
+const { User, UserAttendance, UserSession } = require('./model');
 
 // parse application/json
 app.use(bodyParser.json());
@@ -73,8 +76,12 @@ app.use(bodyParser.json());
       let user = await User.getUserByEmail(connection, req.body["email"]);
       if (user.password != req.body["password"]) {
         res.send("wrong password");
+
+      } else {
+        let user_session = new UserSession(user.id, crypto.randomBytes(TOKEN_LENGTH).toString('hex'));
+        user_session.save(connection);
+        res.send("ok");
       }
-      res.send("ok");
     }
     catch (error) {
       console.log("error is " + error);

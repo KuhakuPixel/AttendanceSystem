@@ -58,6 +58,7 @@ class UserSession {
     }
 
     async save(db_con) {
+        // TODO: update if id is set
         const [results, fields] = await db_con.execute(
             'INSERT INTO UserSessions(user_id, token) VALUES(?, ?)',
             [this.user_id, this.token]
@@ -79,4 +80,4 @@ class UserSession {
     }
 }
 
-module.exports = { User, UserAttendance };
+module.exports = { User, UserAttendance, UserSession };
