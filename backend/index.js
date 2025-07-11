@@ -10,6 +10,7 @@ const port = 3005
 const mysql = require('mysql2/promise');
 var bodyParser = require('body-parser');
 const { User, UserAttendance, UserSession } = require('./model');
+const { requireLogin } = require('./auth');
 
 // parse application/json
 app.use(bodyParser.json());
@@ -78,9 +79,10 @@ app.use(bodyParser.json());
         res.send("wrong password");
 
       } else {
-        let user_session = new UserSession(user.id, crypto.randomBytes(TOKEN_LENGTH).toString('hex'));
+        let token = crypto.randomBytes(TOKEN_LENGTH).toString('hex');
+        let user_session = new UserSession(user.id, token);
         user_session.save(connection);
-        res.send("ok");
+        res.send(token);
       }
     }
     catch (error) {
@@ -89,7 +91,15 @@ app.use(bodyParser.json());
     }
   })
 
-  app.get('/attendances', (req, res) => {
+  app.get('/attendances', async (req, res) => {
+    let user = null;
+    try {
+      user = await requireLogin(connection, req, true);
+    }
+    catch (error) {
+      res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString());
+      return;
+    }
     res.send('Hello World!')
   })
 

@@ -69,14 +69,13 @@ class UserSession {
     static async get_user(db_con, token) {
         const [results, fields] = await db_con.execute(
             'SELECT user_id FROM UserSessions WHERE token = ?',
-            [this.token]
+            [token]
         );
         if (results.length == 0){
             throw new Error(`Token not valid`);
         }
         let user_id = results[0].user_id;
-        User.getUserByEmail
-        console.log()
+        return User.getUserById(db_con, user_id);
     }
 }
 
