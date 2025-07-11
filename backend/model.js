@@ -26,6 +26,15 @@ class User {
             console.log(results)
         }
     }
+    async delete(db_con) {
+        const [results, fields] = await db_con.execute(
+            'DELETE FROM Users WHERE id = ?',
+            [this.id]
+        )
+        console.log(results)
+
+
+    }
 
     static async getAll(db_con) {
         const [results, fields] = await db_con.execute('SELECT * FROM Users')
@@ -75,6 +84,13 @@ class UserAttendance {
         )
         console.log(results)
     }
+
+    static async getAll(db_con) {
+        const [results, fields] = await db_con.execute(
+            'SELECT * FROM UserAttendances;',
+        )
+        return results
+    }
 }
 
 class UserSession {
@@ -93,7 +109,7 @@ class UserSession {
         console.log(results)
     }
 
-    static async get_user(db_con, token) {
+    static async getUser(db_con, token) {
         const [results, fields] = await db_con.execute(
             'SELECT user_id FROM UserSessions WHERE token = ?',
             [token]

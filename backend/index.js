@@ -120,6 +120,26 @@ app.use(bodyParser.json())
       res.send(user_to_update);
     })
 
+    app.delete('/users/:id', async (req, res) => {
+      let user = null
+      try {
+        user = await requireLogin(connection, req, true)
+      } catch (error) {
+        res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
+        return
+      }
+
+      let user_to_delete = null
+      try {
+        user_to_delete = await User.getUserById(connection, req.params['id'])
+      } catch (error) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(error.toString())
+        return
+      }
+      await user_to_delete.delete(connection)
+      res.send();
+    })
+
     app.get('/attendances', async (req, res) => {
       let user = null
       try {
@@ -128,7 +148,8 @@ app.use(bodyParser.json())
         res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
         return
       }
-      res.send('Hello World!')
+      let results = await UserAttendance.getAll(connection)
+      res.send(results)
     })
 
     app.post('/checkin', async (req, res) => {
