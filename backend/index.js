@@ -27,9 +27,8 @@ app.use(bodyParser.json());
     res.send('Hello World!')
   })
 
-  app.post('/register-admin', (req, res) => {
+  app.post('/register-admin', async (req, res) => {
     console.log(req.body);
-    res.send('Hello World!')
     let user = new User(
       req.body["username"],
       req.body["email"],
@@ -37,7 +36,14 @@ app.use(bodyParser.json());
       req.body["password"],
       false
     );
-    user.save(connection);
+
+    try {
+      await user.save(connection);
+      res.send('account created')
+    }
+    catch (error) {
+      res.send(error["message"])
+    }
   })
 
   app.post('/register-employee', (req, res) => {
