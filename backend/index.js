@@ -5,6 +5,7 @@ const port = 3005
 
 const mysql = require('mysql2/promise');
 var bodyParser = require('body-parser');
+const { User, UserAttendance } = require('./model');
 // parse application/json
 app.use(bodyParser.json());
 
@@ -29,6 +30,14 @@ app.use(bodyParser.json());
   app.post('/register-admin', (req, res) => {
     console.log(req.body);
     res.send('Hello World!')
+    let user = new User(
+      req.body["username"],
+      req.body["email"],
+      req.body["age"],
+      req.body["password"],
+      false
+    );
+    user.save(connection);
   })
 
   app.post('/register-employee', (req, res) => {
@@ -36,6 +45,10 @@ app.use(bodyParser.json());
   })
 
   app.post('/login', (req, res) => {
+    res.send('Hello World!')
+  })
+
+  app.get('/attendances', (req, res) => {
     res.send('Hello World!')
   })
 
