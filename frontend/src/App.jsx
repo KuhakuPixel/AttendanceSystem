@@ -166,11 +166,51 @@ function RegisterNewEmployee({ onBack }) {
   </div >
 }
 
-function ViewAttendances({ onBack }) {
+function ViewAttendances({ onBack, token }) {
+
+  const [attendances, setAttendances] = useState([])
+  useEffect(() => {
+    async function getAttendances() {
+      const response = await fetch(BASE_URL + "/attendances", {
+        headers: {
+          'Authorization': token,
+        },
+      })
+      const profileJson = await response.json()
+      setAttendances(profileJson)
+    };
+    if (attendances.length == 0) {
+      getAttendances()
+    }
+  });
+
+  const attendancesItem = attendances.map(attendance =>
+    <tr>
+      <td>{attendance["user_id"]}</td>
+      <td>{attendance["time"]}</td>
+      <td>{attendance["check_in_out_type"]}</td>
+      <td>{attendance[""]}</td>
+    </tr>
+  );
   return <div>
     <button onClick={
       () => { onBack() }
     }>back</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th> employee id </th>
+          <th> checkin/checkout </th>
+          <th> time </th>
+          <th> photo </th>
+        </tr>
+      </thead>
+      <tbody>
+        {attendancesItem}
+
+      </tbody>
+    </table>
 
   </div >
 }
@@ -224,7 +264,9 @@ function AdminHomePage({ onLogout, token }) {
   else if (page === "view_attendances") {
     return <ViewAttendances onBack={() => {
       setPage("home");
-    }}></ViewAttendances>
+    }}
+      token={token}
+    ></ViewAttendances>
   }
 
   else if (page === "view_employees") {
@@ -239,6 +281,11 @@ function AdminHomePage({ onLogout, token }) {
 function UserHomePage({ onLogout, token }) {
   return <>
     <p>normal user</p>
+    <button
+      onClick={
+        () => { onLogout(); }
+      }
+    > Logout </button>
   </>
 }
 function HomePage({ onLogout, token }) {
@@ -255,7 +302,9 @@ function HomePage({ onLogout, token }) {
       const profileJson = await response.json()
       setProfile(profileJson)
     };
-    getProfile();
+    if (Object.keys(profile).length == 0) {
+      getProfile()
+    }
   });
 
   if (Object.keys(profile).length > 0) {
