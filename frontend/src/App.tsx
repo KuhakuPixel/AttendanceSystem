@@ -3,13 +3,9 @@ import { useState } from 'react'
 import './App.css'
 
 const BASE_URL = "http://localhost:3005";
+
+
 function UserForm({ link }) {
-  const [formData, setFormData] = useState({
-    email: "",
-    username: "",
-    age: "",
-    password: "",
-  });
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [age, setAge] = useState(0);
@@ -94,7 +90,8 @@ function UserForm({ link }) {
     </form>
   );
 }
-function LoginForm() {
+
+function LoginForm({ onLogin }) {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -121,7 +118,9 @@ function LoginForm() {
 
       if (response.ok) {
         //const data = await response.json();
-        alert("User Login successful!, token: " + await response.text());
+        let token = await response.text();
+        //alert("User Login successful!, token: " + );
+        onLogin(token);
       } else {
         const err = await response.text();
         alert("Login failed: " + err);
@@ -159,27 +158,37 @@ function LoginForm() {
   );
 }
 
+function HomePage() {
+
+  return <p> logged in </p>
+}
 function App() {
-  const [count, setCount] = useState(0)
 
   const [formType, setFormType] = useState("login");
+  const [token, setToken] = useState("");
   return (
     <>
-      {formType === "register" ? (
-        <>
-          <UserForm link={BASE_URL + "/register-admin"} />
-          <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
-            I already have an account
-          </a>
-        </>
-      ) : (
-        <>
-          <LoginForm />
-          <a href="#" onClick={(e) => { e.preventDefault(); setFormType("register"); }}>
-            I don't have an account
-          </a>
-        </>
-      )}
+      {
+        !token ? (formType === "register" ? (
+          <>
+            <UserForm link={BASE_URL + "/register-admin"} />
+            <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
+              I already have an account
+            </a>
+          </>
+        ) : (
+          <>
+            <LoginForm onLogin={(token) => {
+              setToken(token);
+            }} />
+            <a href="#" onClick={(e) => { e.preventDefault(); setFormType("register"); }}>
+              I don't have an account
+            </a>
+          </>
+        )) : (
+          <HomePage></HomePage>
+        )
+      }
     </>
   )
 }
