@@ -157,10 +157,76 @@ function LoginForm({ onLogin }) {
     </form>
   );
 }
+function RegisterNewEmployee({ onBack }) {
+  return <div>
+    <button onClick={
+      () => { onBack() }
+    }>back</button>
+    <UserForm link={BASE_URL + "/register-employee"}></UserForm>
+
+  </div >
+}
+
+function ViewAttendances({ onBack }) {
+  return <div>
+    <button onClick={
+      () => { onBack() }
+    }>back</button>
+
+  </div >
+}
+
+function ViewEmployees({ onBack }) {
+  return <div>
+    <button onClick={
+      () => { onBack() }
+    }>back</button>
+
+  </div >
+}
 
 function HomePage() {
 
-  return <p> logged in </p>
+  const [page, setPage] = useState("home");
+
+  if (page === "home") {
+    return <div>
+      <button onClick={
+        () => { setPage("register_new_employee"); }
+      }> register new employee </button>
+      <br/><br/>
+      <button
+        onClick={
+          () => { setPage("view_attendances"); }
+        }
+      > view attendances </button>
+
+      <br/><br/>
+      <button
+        onClick={
+          () => { setPage("view_employees"); }
+        }
+      > view employees </button>
+    </div>
+  }
+  else if (page === "register_new_employee") {
+    return <RegisterNewEmployee onBack={() => {
+      setPage("home");
+    }}></RegisterNewEmployee>
+  }
+
+  else if (page === "view_attendances") {
+    return <ViewAttendances onBack={() => {
+      setPage("home");
+    }}></ViewAttendances>
+  }
+
+  else if (page === "view_employees") {
+    return <ViewEmployees onBack={() => {
+      setPage("home");
+    }}></ViewEmployees>
+  }
+
 }
 function App() {
 
