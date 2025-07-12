@@ -1,16 +1,20 @@
 const TOKEN_LENGTH = 128
 const express = require('express')
-const app = express()
+const cors = require('cors');
 const HttpStatus = require('http-status-codes')
 const crypto = require('crypto')
 const id = crypto.randomBytes(20).toString('hex')
-const port = 3005
+
 
 const mysql = require('mysql2/promise')
+
 var bodyParser = require('body-parser')
 const { User, UserAttendance, UserSession } = require('./model')
 const { requireLogin } = require('./auth')
 
+const port = 3005
+const app = express()
+app.use(cors());
 // parse application/json
 app.use(bodyParser.json())
   ; (async function () {
@@ -149,6 +153,20 @@ app.use(bodyParser.json())
         return
       }
       let results = await UserAttendance.getAll(connection)
+      res.send(results)
+    })
+
+    app.get('/my-attendances', async (req, res) => {
+      let user = null
+      try {
+        user = await requireLogin(connection, req, true)
+      } catch (error) {
+        res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
+        return
+      }
+
+      var d = new Date()
+      let results = await UserAttendance.get(connection, d, user.id)
       res.send(results)
     })
 

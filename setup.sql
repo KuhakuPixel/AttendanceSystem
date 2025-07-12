@@ -13,6 +13,9 @@ CREATE TABLE UserAttendances (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	user_id INT NOT NULL, 
 	time DATETIME NOT NULL,
+	-- checkin/checkout value
+	check_in_out_type VARCHAR(10) NOT NULL,
+
 	photo_proof BLOB NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );

@@ -91,6 +91,15 @@ class UserAttendance {
         )
         return results
     }
+
+    static async get(db_con, date, user_id) {
+        let date_only = date.toISOString().split('T')[0]
+        const [results, fields] = await db_con.execute(
+            'SELECT * FROM UserAttendances WHERE user_id = ? AND DATE(time) = ?;',
+            [user_id, date_only]
+        )
+        return results
+    }
 }
 
 class UserSession {
