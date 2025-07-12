@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import './App.css'
 
@@ -185,8 +185,8 @@ function ViewEmployees({ onBack }) {
   </div >
 }
 
-function HomePage() {
 
+function AdminHomePage({ onLogout, token }) {
   const [page, setPage] = useState("home");
 
   if (page === "home") {
@@ -194,19 +194,26 @@ function HomePage() {
       <button onClick={
         () => { setPage("register_new_employee"); }
       }> register new employee </button>
-      <br/><br/>
+      <br /><br />
       <button
         onClick={
           () => { setPage("view_attendances"); }
         }
       > view attendances </button>
 
-      <br/><br/>
+      <br /><br />
       <button
         onClick={
           () => { setPage("view_employees"); }
         }
       > view employees </button>
+      <br /><br />
+
+      <button
+        onClick={
+          () => { onLogout(); }
+        }
+      > Logout </button>
     </div>
   }
   else if (page === "register_new_employee") {
@@ -225,6 +232,43 @@ function HomePage() {
     return <ViewEmployees onBack={() => {
       setPage("home");
     }}></ViewEmployees>
+  }
+
+
+}
+
+function UserHomePage({ onLogout, token }) {
+  return <>
+    <p>normal user</p>
+  </>
+}
+function HomePage({ onLogout, token }) {
+
+  const [profile, setProfile] = useState({})
+
+  useEffect(() => {
+    async function getProfile() {
+      const response = await fetch(BASE_URL + "/profile", {
+        headers: {
+          'Authorization': token,
+        },
+      })
+      const profileJson = await response.json()
+      setProfile(profileJson)
+    };
+    getProfile();
+  });
+
+  if (Object.keys(profile).length > 0) {
+    if (profile["is_admin"] == 1) {
+      return <AdminHomePage onLogout={onLogout} token={token}></AdminHomePage>
+    }
+    else {
+      return <UserHomePage onLogout={onLogout} token={token}></UserHomePage>
+    }
+  }
+  else {
+    return <></>
   }
 
 }
@@ -252,7 +296,11 @@ function App() {
             </a>
           </>
         )) : (
-          <HomePage></HomePage>
+          <HomePage onLogout={() => {
+            setToken("");
+          }}
+            token={token}
+          ></HomePage>
         )
       }
     </>

@@ -53,7 +53,6 @@ app.use(bodyParser.json())
     })
 
     app.post('/register-employee', async (req, res) => {
-      res.send('Hello World!')
       console.log(req.body)
       let user = new User(
         req.body['username'],
@@ -75,8 +74,8 @@ app.use(bodyParser.json())
       try {
         let user = await User.getUserByEmail(connection, req.body['email'])
         if (user.password != req.body['password']) {
-	  res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send("wrong password");
-		
+          res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send("wrong password");
+
         } else {
           let token = crypto.randomBytes(TOKEN_LENGTH).toString('hex')
           let user_session = new UserSession(user.id, token)
@@ -198,6 +197,19 @@ app.use(bodyParser.json())
       await user_attendance.save(connection)
       res.send('ok')
     })
+
+
+    app.get('/profile', async (req, res) => {
+      let user = null
+      try {
+        user = await requireLogin(connection, req, false)
+        res.send(user)
+      } catch (error) {
+        res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
+        return
+      }
+    })
+
 
     app.listen(port, error => {
       console.log(`Example app listening on port ${port}`)
