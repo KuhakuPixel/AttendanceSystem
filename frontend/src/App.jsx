@@ -215,11 +215,52 @@ function ViewAttendances({ onBack, token }) {
   </div >
 }
 
-function ViewEmployees({ onBack }) {
+function ViewEmployees({ onBack, token }) {
+  const [employees, setEmployees] = useState([])
+  useEffect(() => {
+    async function getEmployees() {
+      const response = await fetch(BASE_URL + "/users", {
+        headers: {
+          'Authorization': token,
+        },
+      })
+      const profileJson = await response.json()
+      setEmployees(profileJson)
+    };
+    if (employees.length == 0) {
+      getEmployees()
+    }
+  });
+
+  const employeeItem = employees.map(employee =>
+    <tr>
+      <td>{employee["id"]}</td>
+      <td>{employee["email"]}</td>
+      <td>{employee["username"]}</td>
+      <td>{employee["age"]}</td>
+      <td>{employee["password"]}</td>
+    </tr>
+  );
   return <div>
     <button onClick={
       () => { onBack() }
     }>back</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th> employee id </th>
+          <th> email </th>
+          <th> username </th>
+          <th> age </th>
+          <th> password </th>
+        </tr>
+      </thead>
+      <tbody>
+        {employeeItem}
+
+      </tbody>
+    </table>
 
   </div >
 }
@@ -272,7 +313,9 @@ function AdminHomePage({ onLogout, token }) {
   else if (page === "view_employees") {
     return <ViewEmployees onBack={() => {
       setPage("home");
-    }}></ViewEmployees>
+    }}
+      token={token}
+    ></ViewEmployees>
   }
 
 
