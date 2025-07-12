@@ -75,7 +75,8 @@ app.use(bodyParser.json())
       try {
         let user = await User.getUserByEmail(connection, req.body['email'])
         if (user.password != req.body['password']) {
-          res.send('wrong password')
+	  res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send("wrong password");
+		
         } else {
           let token = crypto.randomBytes(TOKEN_LENGTH).toString('hex')
           let user_session = new UserSession(user.id, token)

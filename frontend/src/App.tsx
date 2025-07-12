@@ -3,7 +3,7 @@ import { useState } from 'react'
 import './App.css'
 
 const BASE_URL = "http://localhost:3005";
-function RegisterUser({ link }) {
+function UserForm({ link }) {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -40,8 +40,7 @@ function RegisterUser({ link }) {
         alert("Registration failed: " + err);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("An error occurred while submitting the form.");
+      alert("An error occurred while submitting the form: " + error);
     }
   };
 
@@ -90,6 +89,71 @@ function RegisterUser({ link }) {
           setPassword(e.target.value);
         }}
       /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+function LoginForm() {
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    age: "",
+    password: "",
+  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // prevent page reload
+
+    try {
+      const response = await fetch(BASE_URL + "/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "email": email,
+          "password": password,
+        }),
+      })
+
+      if (response.ok) {
+        //const data = await response.json();
+        alert("User Login successful!, token: " + await response.text());
+      } else {
+        const err = await response.text();
+        alert("Login failed: " + err);
+      }
+    } catch (error) {
+      alert("An error occurred while submitting the form: " + error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="email">Email:</label><br />
+      <input
+        type="text"
+        id="email"
+        name="email"
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+        }}
+      /><br />
+      <label htmlFor="password">Password:</label><br />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        value={password}
+        onChange={(e) => {
+          setPassword(e.target.value);
+        }}
+      /><br />
+
       <button type="submit">Submit</button>
     </form>
   );
@@ -98,12 +162,24 @@ function RegisterUser({ link }) {
 function App() {
   const [count, setCount] = useState(0)
 
+  const [formType, setFormType] = useState("login");
   return (
     <>
-      <div>
-        <RegisterUser link={BASE_URL + "/register-admin"}></RegisterUser>
-
-      </div>
+      {formType === "register" ? (
+        <>
+          <UserForm link={BASE_URL + "/register-admin"} />
+          <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
+            I already have an account
+          </a>
+        </>
+      ) : (
+        <>
+          <LoginForm />
+          <a href="#" onClick={(e) => { e.preventDefault(); setFormType("register"); }}>
+            I don't have an account
+          </a>
+        </>
+      )}
     </>
   )
 }
