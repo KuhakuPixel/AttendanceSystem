@@ -120,7 +120,12 @@ app.use(bodyParser.json())
       }
       console.log(user_to_update)
       Object.assign(user_to_update, req.body)
-      await user_to_update.save(connection)
+      try {
+        await user_to_update.save(connection)
+      } catch (error) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(error.toString())
+        return
+      }
       res.send(user_to_update);
     })
 
