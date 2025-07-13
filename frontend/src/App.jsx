@@ -271,6 +271,15 @@ function AdminHomePage({ onLogout, token }) {
 
   if (page === "home") {
     return <div>
+      <p> you are an admin</p>
+
+      <button
+        onClick={
+          () => { onLogout(); }
+        }
+      > Logout </button>
+
+      <br /><br />
       <button onClick={
         () => { setPage("register_new_employee"); }
       }> register new employee </button>
@@ -287,13 +296,6 @@ function AdminHomePage({ onLogout, token }) {
           () => { setPage("view_employees"); }
         }
       > view employees </button>
-      <br /><br />
-
-      <button
-        onClick={
-          () => { onLogout(); }
-        }
-      > Logout </button>
     </div>
   }
   else if (page === "register_new_employee") {
@@ -322,13 +324,98 @@ function AdminHomePage({ onLogout, token }) {
 }
 
 function UserHomePage({ onLogout, token }) {
+  const [attendances, setAttendances] = useState([])
+  async function getMyAttendances() {
+    const response = await fetch(BASE_URL + "/my-attendances", {
+      headers: {
+        'Authorization': token,
+      },
+    })
+    if (!response.ok){
+      alert(await response.text());
+
+    }
+    const json = await response.json()
+
+
+    setAttendances(json.map(attendance =>
+      <tr>
+        <td>{attendance["check_in_out_type"]}</td>
+        <td>{attendance["time"]}</td>
+      </tr>
+    ));
+  };
+  useEffect(() => {
+    if (attendances.length == 0) {
+      getMyAttendances();
+    }
+  });
   return <>
-    <p>normal user</p>
+    <p> you are a normal user</p>
     <button
       onClick={
         () => { onLogout(); }
       }
     > Logout </button>
+
+    <br /><br />
+
+    <button
+      onClick={
+        async () => {
+          const response = await fetch(BASE_URL + "/checkin", {
+            method: "POST",
+            headers: {
+              'Authorization': token,
+            },
+          })
+          if (response.ok) {
+            alert("You have checked in")
+            getMyAttendances(); // refresh
+          }
+          else {
+            const err = await response.text();
+            alert("Checkin failed: " + err);
+
+          }
+        }
+      }
+    > Checkin </button>
+    <br /><br />
+
+    <button
+      onClick={
+        async () => {
+          const response = await fetch(BASE_URL + "/checkout", {
+            method: "POST",
+            headers: {
+              'Authorization': token,
+            },
+          })
+          if (response.ok) {
+            alert("You have checked out")
+            getMyAttendances(); // refresh
+          }
+          else {
+            const err = await response.text();
+            alert("Checkout failed: " + err);
+
+          }
+        }
+      }
+    > Checkout </button>
+    <table>
+      <thead>
+        <tr>
+          <th> checkin/checkout </th>
+          <th> time </th>
+        </tr>
+      </thead>
+      <tbody>
+        {attendances}
+
+      </tbody>
+    </table>
   </>
 }
 function HomePage({ onLogout, token }) {
@@ -372,6 +459,7 @@ function App() {
       {
         !token ? (formType === "register" ? (
           <>
+            <p> Register Admin </p>
             <UserForm link={BASE_URL + "/register-admin"} />
             <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
               I already have an account

@@ -156,7 +156,7 @@ app.use(bodyParser.json())
       res.send(results)
     })
 
-    app.get('/my-attendances', async (req, res) => {
+    app.get('/my-attendances-today', async (req, res) => {
       let user = null
       try {
         user = await requireLogin(connection, req, true)
@@ -166,7 +166,20 @@ app.use(bodyParser.json())
       }
 
       var d = new Date()
-      let results = await UserAttendance.get(connection, d, user.id)
+      let results = await UserAttendance.getByDate(connection, d, user.id)
+      res.send(results)
+    })
+
+    app.get('/my-attendances', async (req, res) => {
+      let user = null
+      try {
+        user = await requireLogin(connection, req, false)
+      } catch (error) {
+        res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
+        return
+      }
+
+      let results = await UserAttendance.getAllByUser(connection, user.id)
       res.send(results)
     })
 
