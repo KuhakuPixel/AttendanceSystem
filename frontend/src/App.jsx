@@ -436,7 +436,7 @@ function CheckInForm({ token }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <label htmlFor="email"> photo </label><br />
+      <label htmlFor="email"> photo proof </label><br />
       <input type="file" name="myImage" accept="image/*"
         value={photoFileName}
         onChange={(e) => {
@@ -492,7 +492,7 @@ function UserHomePage({ onLogout, token }) {
 
     <br /><br />
     <CheckInForm token={token}></CheckInForm>
-    <br /><br />
+    <br />
 
     <button
       onClick={
@@ -515,6 +515,7 @@ function UserHomePage({ onLogout, token }) {
         }
       }
     > Checkout </button>
+    <br/> <br/>
     <table>
       <thead>
         <tr>
