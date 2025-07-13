@@ -3,21 +3,22 @@ import './App.css'
 
 const BASE_URL = "http://localhost:3005";
 
-
-function UserForm({ link }) {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [age, setAge] = useState(0);
-  const [password, setPassword] = useState("");
+function UserForm({ link, http_method, emailVal = "", usernameVal = "", ageVal = 0, passwordVal = "", token = "" }) {
+  const [email, setEmail] = useState(emailVal);
+  const [username, setUsername] = useState(usernameVal);
+  const [age, setAge] = useState(ageVal);
+  const [password, setPassword] = useState(passwordVal);
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // prevent page reload
 
     try {
       const response = await fetch(link, {
-        method: 'POST',
+        method: http_method,
+
         headers: {
           'Content-Type': 'application/json',
+          "Authorization": token
         },
         body: JSON.stringify({
           "email": email,
@@ -90,6 +91,7 @@ function UserForm({ link }) {
   );
 }
 
+
 function LoginForm({ onLogin }) {
   const [formData, setFormData] = useState({
     email: "",
@@ -161,7 +163,7 @@ function RegisterNewEmployee({ onBack }) {
     <button onClick={
       () => { onBack() }
     }>back</button>
-    <UserForm link={BASE_URL + "/register-employee"}></UserForm>
+    <UserForm link={BASE_URL + "/register-employee"} http_method={"POST"}></UserForm>
 
   </div >
 }
@@ -215,8 +217,27 @@ function ViewAttendances({ onBack, token }) {
   </div >
 }
 
-function ViewEmployees({ onBack, token }) {
+function EditEmployeePage({ onBack, token, employeeToEdit }) {
+  return <div>
+    <button onClick={
+      () => { onBack() }
+    }>back</button>
+    <p>editing employee id {employeeToEdit["id"]} </p>
+    <UserForm http_method={"PUT"} link={BASE_URL + "/users" + "/" + employeeToEdit["id"]}
+      ageVal={employeeToEdit["age"]}
+      emailVal={employeeToEdit["email"]}
+      passwordVal={employeeToEdit["password"]}
+      usernameVal={employeeToEdit["username"]}
+      token={token}
+    ></UserForm>
+  </div>
+}
+
+function ViewEmployeesPage({ onBack, token }) {
+  const [page, setPage] = useState("view_employee_page")
   const [employees, setEmployees] = useState([])
+  const [employeeToEdit, setEmployeeToEdit] = useState(-1)
+
   useEffect(() => {
     async function getEmployees() {
       const response = await fetch(BASE_URL + "/users", {
@@ -239,30 +260,42 @@ function ViewEmployees({ onBack, token }) {
       <td>{employee["username"]}</td>
       <td>{employee["age"]}</td>
       <td>{employee["password"]}</td>
+      <td><button onClick={() => {
+        setEmployeeToEdit(employee)
+        setPage("edit_employee")
+      }}> Edit </button></td>
     </tr>
   );
-  return <div>
-    <button onClick={
-      () => { onBack() }
-    }>back</button>
+  if (page === "view_employee_page") {
+    return <div>
+      <button onClick={
+        () => { onBack() }
+      }>back</button>
 
-    <table>
-      <thead>
-        <tr>
-          <th> employee id </th>
-          <th> email </th>
-          <th> username </th>
-          <th> age </th>
-          <th> password </th>
-        </tr>
-      </thead>
-      <tbody>
-        {employeeItem}
+      <table>
+        <thead>
+          <tr>
+            <th> employee id </th>
+            <th> email </th>
+            <th> username </th>
+            <th> age </th>
+            <th> password </th>
+            <th>  </th>
+          </tr>
+        </thead>
+        <tbody>
+          {employeeItem}
 
-      </tbody>
-    </table>
+        </tbody>
+      </table>
 
-  </div >
+    </div >
+  }
+  else if (page === "edit_employee") {
+    return <EditEmployeePage onBack={
+      () => { setPage("view_employee_page") }
+    } employeeToEdit={employeeToEdit} token={token}></EditEmployeePage>
+  }
 }
 
 
@@ -313,11 +346,11 @@ function AdminHomePage({ onLogout, token }) {
   }
 
   else if (page === "view_employees") {
-    return <ViewEmployees onBack={() => {
+    return <ViewEmployeesPage onBack={() => {
       setPage("home");
     }}
       token={token}
-    ></ViewEmployees>
+    ></ViewEmployeesPage>
   }
 
 
@@ -331,7 +364,7 @@ function UserHomePage({ onLogout, token }) {
         'Authorization': token,
       },
     })
-    if (!response.ok){
+    if (!response.ok) {
       alert(await response.text());
 
     }
@@ -454,36 +487,33 @@ function App() {
 
   const [formType, setFormType] = useState("login");
   const [token, setToken] = useState("");
-  return (
-    <>
-      {
-        !token ? (formType === "register" ? (
-          <>
-            <p> Register Admin </p>
-            <UserForm link={BASE_URL + "/register-admin"} />
-            <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
-              I already have an account
-            </a>
-          </>
-        ) : (
-          <>
-            <LoginForm onLogin={(token) => {
-              setToken(token);
-            }} />
-            <a href="#" onClick={(e) => { e.preventDefault(); setFormType("register"); }}>
-              I don't have an account
-            </a>
-          </>
-        )) : (
-          <HomePage onLogout={() => {
-            setToken("");
-          }}
-            token={token}
-          ></HomePage>
-        )
-      }
-    </>
-  )
+  if (!token) {
+    return (formType === "register" ? (
+      <>
+        <p> Register Admin </p>
+        <UserForm link={BASE_URL + "/register-admin"} http_method={"POST"} />
+        <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
+          I already have an account
+        </a>
+      </>
+    ) : (
+      <>
+        <LoginForm onLogin={(token) => {
+          setToken(token);
+        }} />
+        <a href="#" onClick={(e) => { e.preventDefault(); setFormType("register"); }}>
+          I don't have an account
+        </a>
+      </>
+    ))
+  }
+  else {
+    return <HomePage onLogout={() => {
+      setToken("");
+    }}
+      token={token}
+    ></HomePage>
+  }
 }
 
 export default App
