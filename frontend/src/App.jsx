@@ -3,7 +3,7 @@ import './App.css'
 
 const BASE_URL = "http://localhost:3005";
 
-function UserForm({ link, http_method, emailVal = "", usernameVal = "", ageVal = 0, passwordVal = "", token = "" }) {
+function UserForm({ link, http_method, emailVal = "", usernameVal = "", ageVal = 0, passwordVal = "", token = "", successMsg }) {
   const [email, setEmail] = useState(emailVal);
   const [username, setUsername] = useState(usernameVal);
   const [age, setAge] = useState(ageVal);
@@ -30,7 +30,7 @@ function UserForm({ link, http_method, emailVal = "", usernameVal = "", ageVal =
 
       if (response.ok) {
         //const data = await response.json();
-        alert("User registered successfully!");
+        alert(successMsg);
       } else {
         const err = await response.text();
         alert("Registration failed: " + err);
@@ -163,7 +163,7 @@ function RegisterNewEmployee({ onBack }) {
     <button onClick={
       () => { onBack() }
     }>back</button>
-    <UserForm link={BASE_URL + "/register-employee"} http_method={"POST"}></UserForm>
+    <UserForm link={BASE_URL + "/register-employee"} http_method={"POST"} successMsg={"Employee registered"}></UserForm>
 
   </div >
 }
@@ -228,6 +228,7 @@ function EditEmployeePage({ onBack, token, employeeToEdit }) {
       emailVal={employeeToEdit["email"]}
       passwordVal={employeeToEdit["password"]}
       usernameVal={employeeToEdit["username"]}
+      successMsg={"Employee edited"}
       token={token}
     ></UserForm>
   </div>
@@ -238,16 +239,16 @@ function ViewEmployeesPage({ onBack, token }) {
   const [employees, setEmployees] = useState([])
   const [employeeToEdit, setEmployeeToEdit] = useState(-1)
 
+  async function getEmployees() {
+    const response = await fetch(BASE_URL + "/users", {
+      headers: {
+        'Authorization': token,
+      },
+    })
+    const profileJson = await response.json()
+    setEmployees(profileJson)
+  };
   useEffect(() => {
-    async function getEmployees() {
-      const response = await fetch(BASE_URL + "/users", {
-        headers: {
-          'Authorization': token,
-        },
-      })
-      const profileJson = await response.json()
-      setEmployees(profileJson)
-    };
     if (employees.length == 0) {
       getEmployees()
     }
@@ -293,7 +294,11 @@ function ViewEmployeesPage({ onBack, token }) {
   }
   else if (page === "edit_employee") {
     return <EditEmployeePage onBack={
-      () => { setPage("view_employee_page") }
+      () => {
+        setPage("view_employee_page")
+        getEmployees() // refresh
+
+      }
     } employeeToEdit={employeeToEdit} token={token}></EditEmployeePage>
   }
 }
@@ -491,7 +496,7 @@ function App() {
     return (formType === "register" ? (
       <>
         <p> Register Admin </p>
-        <UserForm link={BASE_URL + "/register-admin"} http_method={"POST"} />
+        <UserForm link={BASE_URL + "/register-admin"} http_method={"POST"} successMsg={"Admin registered"} />
         <a href="#" onClick={(e) => { e.preventDefault(); setFormType("login"); }}>
           I already have an account
         </a>
