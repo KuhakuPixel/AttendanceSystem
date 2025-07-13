@@ -101,6 +101,15 @@ class UserAttendance {
         return results
     }
 
+    static async getByDateAndType(db_con, date, user_id, check_in_out_type) {
+        let date_only = date.toISOString().split('T')[0]
+        const [results, fields] = await db_con.execute(
+            'SELECT * FROM UserAttendances WHERE user_id = ? AND DATE(time) = ? AND check_in_out_type = ?;',
+            [user_id, date_only, check_in_out_type]
+        )
+        return results
+    }
+
     static async getAllByUser(db_con, user_id) {
         const [results, fields] = await db_con.execute(
             'SELECT * FROM UserAttendances WHERE user_id = ?',

@@ -220,6 +220,18 @@ app.use(bodyParser.json())
         res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
         return
       }
+      // has done checkin today?
+      var d = new Date()
+      let results = await UserAttendance.getByDateAndType(connection, d, user.id, "checkin")
+      if (results.length > 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send("you have checked in for today, please wait until tommorow")
+        return
+      }
+
+
+
+
+      //
       var d = new Date()
       if (req.body["photo"].length == 0) {
         res.status(HttpStatus.StatusCodes.BAD_REQUEST).send("photo is required for checkin")
@@ -238,8 +250,14 @@ app.use(bodyParser.json())
         res.status(HttpStatus.StatusCodes.UNAUTHORIZED).send(error.toString())
         return
       }
+      // has done checkin today?
       var d = new Date()
-
+      let results = await UserAttendance.getByDateAndType(connection, d, user.id, "checkout")
+      if (results.length > 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send("you have checked out for today, please wait until tommorow")
+        return
+      }
+      //
       let user_attendance = new UserAttendance(user.id, d, '', 'checkout')
       await user_attendance.save(connection)
       res.send('ok')
