@@ -10,7 +10,8 @@ const mysql = require('mysql2/promise')
 
 var bodyParser = require('body-parser')
 const { User, UserAttendance, UserSession } = require('./model')
-const { requireLogin } = require('./auth')
+const { requireLogin } = require('./auth');
+const { validateUserJson, validateLoginJson } = require('./validate');
 
 const port = 3005
 const app = express()
@@ -36,6 +37,12 @@ app.use(bodyParser.json())
 
     app.post('/register-admin', async (req, res) => {
       console.log(req.body)
+      let validateError = validateUserJson(req.body)
+      if (validateError.length > 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(validateError)
+        return;
+      }
+
       let user = new User(
         req.body['username'],
         req.body['email'],
@@ -54,6 +61,11 @@ app.use(bodyParser.json())
 
     app.post('/register-employee', async (req, res) => {
       console.log(req.body)
+      let validateError = validateUserJson(req.body)
+      if (validateError.length > 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(validateError)
+        return;
+      }
       let user = new User(
         req.body['username'],
         req.body['email'],
@@ -71,6 +83,11 @@ app.use(bodyParser.json())
     })
 
     app.post('/login', async (req, res) => {
+      let validateError = validateLoginJson(req.body)
+      if (validateError.length > 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(validateError)
+        return;
+      }
       try {
         let user = await User.getUserByEmail(connection, req.body['email'])
         if (user.password != req.body['password']) {
@@ -119,6 +136,13 @@ app.use(bodyParser.json())
         return
       }
       console.log(user_to_update)
+
+      let validateError = validateUserJson(req.body)
+      if (validateError.length > 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send(validateError)
+        return;
+      }
+
       Object.assign(user_to_update, req.body)
       try {
         await user_to_update.save(connection)
