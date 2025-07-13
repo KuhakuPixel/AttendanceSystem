@@ -190,6 +190,8 @@ function ViewAttendances({ onBack, token }) {
   const attendancesItem = attendances.map(attendance =>
     <tr>
       <td>{attendance["user_id"]}</td>
+      <td>{attendance["email"]}</td>
+      <td>{attendance["username"]}</td>
       <td>{attendance["check_in_out_type"]}</td>
       <td>{attendance["time"]}</td>
       <td><img src={attendance["photo_proof"]}></img></td>
@@ -204,6 +206,8 @@ function ViewAttendances({ onBack, token }) {
       <thead>
         <tr>
           <th> employee id </th>
+          <th> email </th>
+          <th> username </th>
           <th> checkin/checkout </th>
           <th> time </th>
           <th> photo </th>

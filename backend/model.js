@@ -87,7 +87,7 @@ class UserAttendance {
 
     static async getAll(db_con) {
         const [results, fields] = await db_con.execute(
-            'SELECT * FROM UserAttendances;',
+            'SELECT user_id, email, username, time, check_in_out_type, photo_proof FROM UserAttendances JOIN Users ON Users.id = UserAttendances.user_id;',
         )
         return results
     }
