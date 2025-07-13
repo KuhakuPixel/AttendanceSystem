@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import { getBase64 } from './Util';
 
 const BASE_URL = "http://localhost:3005";
 
@@ -85,7 +86,7 @@ function UserForm({ link, http_method, emailVal = "", usernameVal = "", ageVal =
           setPassword(e.target.value);
         }}
       /><br />
-
+      <br />
       <button type="submit">Submit</button>
     </form>
   );
@@ -153,7 +154,7 @@ function LoginForm({ onLogin }) {
           setPassword(e.target.value);
         }}
       /><br />
-
+      <br />
       <button type="submit">Submit</button>
     </form>
   );
@@ -189,9 +190,9 @@ function ViewAttendances({ onBack, token }) {
   const attendancesItem = attendances.map(attendance =>
     <tr>
       <td>{attendance["user_id"]}</td>
-      <td>{attendance["time"]}</td>
       <td>{attendance["check_in_out_type"]}</td>
-      <td>{attendance[""]}</td>
+      <td>{attendance["time"]}</td>
+      <td><img src={attendance["photo_proof"]}></img></td>
     </tr>
   );
   return <div>
@@ -403,6 +404,57 @@ function AdminHomePage({ onLogout, token }) {
 
 }
 
+function CheckInForm({ token }) {
+  const [photoFileName, setPhotoFileName] = useState("");
+  const [photo, setPhoto] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // prevent page reload
+
+    try {
+      const response = await fetch(BASE_URL + "/checkin", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: JSON.stringify({
+          "photo": photo,
+        }),
+      })
+
+      if (response.ok) {
+        alert("checkin okay");
+      } else {
+        const err = await response.text();
+        alert("Checkin failed: " + err);
+      }
+    } catch (error) {
+      alert("An error occurred while submitting the form: " + error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="email"> photo </label><br />
+      <input type="file" name="myImage" accept="image/*"
+        value={photoFileName}
+        onChange={(e) => {
+          console.log(e.target.value)
+          setPhotoFileName(e.target.value);
+          getBase64(e.target.files[0], (result) => {
+            setPhoto(result);
+          })
+        }}
+      />
+
+      <br />
+
+      <br />
+      <button type="submit">Checkin</button>
+    </form>)
+
+}
 function UserHomePage({ onLogout, token }) {
   const [attendances, setAttendances] = useState([])
   async function getMyAttendances() {
@@ -439,28 +491,7 @@ function UserHomePage({ onLogout, token }) {
     > Logout </button>
 
     <br /><br />
-
-    <button
-      onClick={
-        async () => {
-          const response = await fetch(BASE_URL + "/checkin", {
-            method: "POST",
-            headers: {
-              'Authorization': token,
-            },
-          })
-          if (response.ok) {
-            alert("You have checked in")
-            getMyAttendances(); // refresh
-          }
-          else {
-            const err = await response.text();
-            alert("Checkin failed: " + err);
-
-          }
-        }
-      }
-    > Checkin </button>
+    <CheckInForm token={token}></CheckInForm>
     <br /><br />
 
     <button

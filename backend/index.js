@@ -197,7 +197,11 @@ app.use(bodyParser.json())
         return
       }
       var d = new Date()
-      let user_attendance = new UserAttendance(user.id, d, '', 'checkin')
+      if (req.body["photo"].length == 0) {
+        res.status(HttpStatus.StatusCodes.BAD_REQUEST).send("photo is required for checkin")
+        return;
+      }
+      let user_attendance = new UserAttendance(user.id, d, req.body["photo"], 'checkin')
       await user_attendance.save(connection)
       res.send('ok')
     })
@@ -211,6 +215,7 @@ app.use(bodyParser.json())
         return
       }
       var d = new Date()
+
       let user_attendance = new UserAttendance(user.id, d, '', 'checkout')
       await user_attendance.save(connection)
       res.send('ok')
