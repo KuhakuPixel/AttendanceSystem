@@ -234,10 +234,36 @@ function EditEmployeePage({ onBack, token, employeeToEdit }) {
   </div>
 }
 
+function DeleteEmployeePage({ onBack, token, employeeToDelete }) {
+
+  return <div>
+    <p> Delete Employee?</p>
+    <button onClick={
+      () => { onBack() }
+    }>No</button>
+    <button onClick={async () => {
+      const response = await fetch(BASE_URL + "/users" + "/" + employeeToDelete["id"], {
+        method: "DELETE",
+        headers: {
+          "Authorization": token
+        },
+      })
+      if (response.ok) {
+        //const data = await response.json();
+        alert("employee deleted");
+        onBack();
+      }
+    }}>
+      Yes
+    </button>
+  </div>
+}
+
 function ViewEmployeesPage({ onBack, token }) {
   const [page, setPage] = useState("view_employee_page")
   const [employees, setEmployees] = useState([])
   const [employeeToEdit, setEmployeeToEdit] = useState(-1)
+  const [employeeToDelete, setEmployeeToDelete] = useState(-1)
 
   async function getEmployees() {
     const response = await fetch(BASE_URL + "/users", {
@@ -265,6 +291,11 @@ function ViewEmployeesPage({ onBack, token }) {
         setEmployeeToEdit(employee)
         setPage("edit_employee")
       }}> Edit </button></td>
+
+      <td><button onClick={() => {
+        setEmployeeToDelete(employee)
+        setPage("delete_employee")
+      }}> Delete </button></td>
     </tr>
   );
   if (page === "view_employee_page") {
@@ -281,6 +312,7 @@ function ViewEmployeesPage({ onBack, token }) {
             <th> username </th>
             <th> age </th>
             <th> password </th>
+            <th>  </th>
             <th>  </th>
           </tr>
         </thead>
@@ -300,6 +332,16 @@ function ViewEmployeesPage({ onBack, token }) {
 
       }
     } employeeToEdit={employeeToEdit} token={token}></EditEmployeePage>
+  }
+  else if (page === "delete_employee") {
+    return <DeleteEmployeePage onBack={
+      () => {
+        setPage("view_employee_page")
+        getEmployees() // refresh
+
+      }
+    } employeeToDelete={employeeToDelete} token={token}></DeleteEmployeePage>
+
   }
 }
 
