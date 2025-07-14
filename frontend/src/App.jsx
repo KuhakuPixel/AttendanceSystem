@@ -4,6 +4,11 @@ import { getBase64 } from './Util';
 
 const BASE_URL = "http://localhost:3005";
 
+Date.prototype.addHours = function (hour) {
+  this.setHours(this.getHours() + hour);
+  return this;
+}
+
 function UserForm({ link, http_method, emailVal = "", usernameVal = "", ageVal = 0, passwordVal = "", token = "", successMsg }) {
   const [email, setEmail] = useState(emailVal);
   const [username, setUsername] = useState(usernameVal);
@@ -187,16 +192,19 @@ function ViewAttendances({ onBack, token }) {
     }
   });
 
-  const attendancesItem = attendances.map(attendance =>
-    <tr>
+  const attendancesItem = attendances.map(attendance => {
+    let time = new Date(attendance["time"])
+    time.addHours(7)
+    time = time.toISOString()
+    return <tr>
       <td>{attendance["user_id"]}</td>
       <td>{attendance["email"]}</td>
       <td>{attendance["username"]}</td>
       <td>{attendance["check_in_out_type"]}</td>
-      <td>{attendance["time"].replace("T", "").replace("Z", "")}</td>
+      <td>{time.replace("T", " ").replace("Z", "")}</td>
       <td><img src={attendance["photo_proof"]}></img></td>
     </tr>
-  );
+  });
   return <div>
     <button onClick={
       () => { onBack() }
@@ -474,12 +482,15 @@ function UserHomePage({ onLogout, token }) {
     const json = await response.json()
 
 
-    setAttendances(json.map(attendance =>
-      <tr>
+    setAttendances(json.map(attendance => {
+      let time = new Date(attendance["time"])
+      time.addHours(7)
+      time = time.toISOString()
+      return <tr>
         <td>{attendance["check_in_out_type"]}</td>
-        <td>{attendance["time"].replace("T", " ").replace("Z", "")}</td>
+        <td>{time.replace("T", " ").replace("Z", "")}</td>
       </tr>
-    ));
+    }));
   };
   useEffect(() => {
     if (attendances.length == 0) {
