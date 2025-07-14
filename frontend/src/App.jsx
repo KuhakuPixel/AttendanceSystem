@@ -519,7 +519,7 @@ function UserHomePage({ onLogout, token }) {
         }
       }
     > Checkout </button>
-    <br/> <br/>
+    <br /> <br />
     <table>
       <thead>
         <tr>
@@ -569,7 +569,7 @@ function HomePage({ onLogout, token }) {
 function App() {
 
   const [formType, setFormType] = useState("login");
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("Authorization"));
   if (!token) {
     return (formType === "register" ? (
       <>
@@ -583,6 +583,8 @@ function App() {
       <>
         <LoginForm onLogin={(token) => {
           setToken(token);
+          localStorage.setItem("Authorization", token);
+
         }} />
         <a href="#" onClick={(e) => { e.preventDefault(); setFormType("register"); }}>
           I don't have an account
@@ -593,6 +595,8 @@ function App() {
   else {
     return <HomePage onLogout={() => {
       setToken("");
+      localStorage.removeItem("Authorization");
+
     }}
       token={token}
     ></HomePage>
