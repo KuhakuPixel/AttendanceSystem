@@ -193,7 +193,7 @@ function ViewAttendances({ onBack, token }) {
       <td>{attendance["email"]}</td>
       <td>{attendance["username"]}</td>
       <td>{attendance["check_in_out_type"]}</td>
-      <td>{attendance["time"]}</td>
+      <td>{attendance["time"].replace("T", "").replace("Z", "")}</td>
       <td><img src={attendance["photo_proof"]}></img></td>
     </tr>
   );
@@ -477,7 +477,7 @@ function UserHomePage({ onLogout, token }) {
     setAttendances(json.map(attendance =>
       <tr>
         <td>{attendance["check_in_out_type"]}</td>
-        <td>{attendance["time"]}</td>
+        <td>{attendance["time"].replace("T", " ").replace("Z", "")}</td>
       </tr>
     ));
   };
