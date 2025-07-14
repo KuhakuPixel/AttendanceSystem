@@ -169,6 +169,8 @@ function RegisterNewEmployee({ onBack }) {
     <button onClick={
       () => { onBack() }
     }>back</button>
+    <br></br>
+    <br></br>
     <UserForm link={BASE_URL + "/register-employee"} http_method={"POST"} successMsg={"Employee registered"}></UserForm>
 
   </div >
@@ -209,6 +211,8 @@ function ViewAttendances({ onBack, token }) {
     <button onClick={
       () => { onBack() }
     }>back</button>
+    <br></br>
+    <br></br>
 
     <table>
       <thead>
@@ -254,6 +258,8 @@ function DeleteEmployeePage({ onBack, token, employeeToDelete }) {
     <button onClick={
       () => { onBack() }
     }>No</button>
+    <br></br>
+    <br></br>
     <button onClick={async () => {
       const response = await fetch(BASE_URL + "/users" + "/" + employeeToDelete["id"], {
         method: "DELETE",
@@ -316,6 +322,9 @@ function ViewEmployeesPage({ onBack, token }) {
       <button onClick={
         () => { onBack() }
       }>back</button>
+
+      <br></br>
+      <br></br>
 
       <table>
         <thead>
