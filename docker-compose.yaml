@@ -23,7 +23,6 @@ services:
   db:
     image: mysql:8
     restart: always
-    network_mode: host
     environment:
       MYSQL_DATABASE: 'db'
       MYSQL_USER: 'user'
